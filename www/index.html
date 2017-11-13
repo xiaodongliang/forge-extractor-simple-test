@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Extract SVF Package</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"  />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+
+      <div class="container-fluid">
+          <div class="row"> 
+              <div class="col-md-8">
+                  <input type="text"  id="txtURN" placeholder="urn" > 
+                </div>
+
+                <div class="col-md-8">
+                    <button type="button" id="btnRequest" class="btn btn-primary btn-xlg">Request Extraction</button> 
+                    <button type="button" id="btnDownload" class="btn btn-success btn-xlg">Download SVF Package</button> 
+                    
+                </div>
+                <div class="col-md-8">
+                      <div id="msg" class="alert alert-primary" role="alert">
+                          status
+                         </div>
+                </div>
+             
+          </div>
+      </div> 
+    <script> 
+        
+        var downloadfilename='';
+        $(document).ready (function () { 
+          
+          $("#btnRequest").click(function(){
+
+            $("#msg").text('processing....')
+
+            var urnStr = $("#txtURN").val()  
+
+              $.ajax ({
+                url: '/svfextract/'+urnStr,
+                type: 'get',
+                data: null,
+                contentType: 'application/json',
+                complete: null
+              }).done (function (response) {
+                  if(response.err){
+                      alert ('get SVF package failed >> ' + response.err) ;
+                  }
+                  else { 
+                    downloadfilename = response.filename
+                    $("#msg").text(response.status) 
+                  }
+              }).fail (function (xhr, ajaxOptions, thrownError) {
+                      alert ('get SVF package failed when requesting!') ;
+              }) 
+             
+          })
+
+          //download the SVF package
+          $("#btnDownload").click(function(){
+            var hf = document.createElement('a');
+            hf.id = 'tempwiresult';
+
+            hf.href = 'http://' + window.location.host
+                       + '/svfextract/download/' 
+                       + downloadfilename;
+            hf.download = downloadfilename; 
+            hf.innerHTML = hf.download;
+            document.body.appendChild(hf);
+            document.getElementById('tempwiresult').click();
+            document.body.removeChild(document.getElementById('tempwiresult'));
+   
+          })
+
+        })
+
+
+    </script>
+  </body>
+</html>
